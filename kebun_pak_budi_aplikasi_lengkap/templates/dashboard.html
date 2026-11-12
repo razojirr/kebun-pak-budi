@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard - Kebun Pak Budi</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <div class="brand">🌱 Kebun Pak Budi</div>
+  <nav><a href="#dashboard">Dashboard</a><a href="#transaksi">Transaksi</a><a href="#laporan">Laporan</a><a href="{{ url_for('logout') }}">Keluar</a></nav>
+</header>
+<main>
+<section class="hero" id="dashboard">
+  <div><div class="eyebrow">DASHBOARD PETANI</div><h1>Halo, {{ nama }} 👋</h1>
+  <p>Pantau modal, hasil panen, HPP, penjualan, dan laba kebun dari satu tempat.</p></div>
+  <div class="hero-icon">🌶️</div>
+</section>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}<div class="alert {{category}}">{{message}}</div>{% endfor %}
+{% endwith %}
+
+<section class="stats">
+<div class="stat"><span>Total Modal</span><b>Rp{{ "{:,.0f}".format(total_modal) }}</b></div>
+<div class="stat"><span>Total Panen</span><b>{{ "{:,.1f}".format(panen) }} kg</b></div>
+<div class="stat"><span>HPP / kg</span><b>Rp{{ "{:,.0f}".format(hpp) }}</b></div>
+<div class="stat"><span>Pendapatan</span><b>Rp{{ "{:,.0f}".format(pendapatan) }}</b></div>
+</section>
+
+<section class="highlight">
+<div><span>Rekomendasi harga jual minimum</span><strong>Rp{{ "{:,.0f}".format(rekomendasi) }} / kg</strong></div>
+<div><span>Perkiraan laba / rugi</span><strong class="{{ 'profit' if laba >= 0 else 'loss' }}">Rp{{ "{:,.0f}".format(laba) }}</strong></div>
+</section>
+
+<section id="transaksi" class="forms">
+<div class="panel"><h2>💸 Pengeluaran</h2>
+<form method="post" action="{{ url_for('expense') }}">
+<label>Keterangan</label><input name="keterangan" placeholder="Contoh: Pupuk organik" required>
+<label>Jumlah (Rp)</label><input name="jumlah" type="number" min="0" required>
+<label class="check"><input name="via_utang" type="checkbox"> Bon / utang toko</label>
+<button>Simpan Pengeluaran</button></form></div>
+
+<div class="panel"><h2>🌾 Hasil Panen</h2>
+<form method="post" action="{{ url_for('harvest') }}">
+<label>Jenis tanaman</label><input name="tanaman" value="Cabai Merah" required>
+<label>Total panen (kg)</label><input name="total_kg" type="number" step="0.1" min="0" required>
+<button>Simpan Panen</button></form></div>
+
+<div class="panel"><h2>🤝 Penjualan</h2>
+<form method="post" action="{{ url_for('sale') }}">
+<label>Volume terjual (kg)</label><input name="volume_kg" type="number" step="0.1" min="0" required>
+<label>Harga jual / kg (Rp)</label><input name="harga_per_kg" type="number" min="0" required>
+<label class="check"><input name="tunai" type="checkbox" checked> Dibayar tunai</label>
+<button>Simpan Penjualan</button></form></div>
+</section>
+
+<section id="laporan" class="panel">
+<div class="title-row"><h2>📋 Laporan Pengeluaran</h2>
+<form method="post" action="{{ url_for('clear') }}" onsubmit="return confirm('Hapus semua data transaksi?')"><button class="danger">Reset Data</button></form></div>
+{% if expenses %}
+<table><tr><th>No</th><th>Keterangan</th><th>Jumlah</th><th>Status</th></tr>
+{% for x in expenses %}<tr><td>{{loop.index}}</td><td>{{x.keterangan}}</td><td>Rp{{"{:,.0f}".format(x.jumlah)}}</td><td>{{"Kredit / Bon" if x.via_utang else "Tunai"}}</td></tr>{% endfor %}
+</table>
+{% else %}<p class="empty">Belum ada data pengeluaran.</p>{% endif %}
+<div class="summary">
+<div>Utang toko<br><b>Rp{{"{:,.0f}".format(total_utang)}}</b></div>
+<div>Tanaman terakhir<br><b>{{harvest.tanaman if harvest else "-"}}</b></div>
+<div>Harga jual terakhir<br><b>Rp{{"{:,.0f}".format(sales.harga_per_kg if sales else 0)}}/kg</b></div>
+</div>
+</section>
+</main>
+<footer>Kebun Pak Budi · Catatan Tani Digital</footer>
+</body></html>

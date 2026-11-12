@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login - Kebun Pak Budi</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-page">
+<div class="login-box">
+  <div class="logo">🌱</div>
+  <h1>Kebun Pak Budi</h1>
+  <p>Catatan tani digital untuk mengelola kebun dengan lebih rapi.</p>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}<div class="alert {{category}}">{{message}}</div>{% endfor %}
+  {% endwith %}
+  <form method="post">
+    <label>Username</label><input name="username" placeholder="Masukkan username" required>
+    <label>Password</label><input name="password" type="password" placeholder="Masukkan password" required>
+    <button type="submit">Masuk ke Dashboard</button>
+  </form>
+  <div class="demo">Demo: <b>budi</b> / <b>budi123</b></div>
+</div>
+</body></html>
